@@ -1,0 +1,83 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鐘聲嚮起歸家的訊號</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <h3></h3>
+    <div class="container mt-5" >
+        
+        <table class="table table-striped text-center">
+            <tr class="fw-bold">
+                <td>37B</td>
+                <td>70</td>
+                <td>70P</td>
+            </tr>
+            <tr>
+                <td><span id="37B_1"></span></td>
+                <td><span id="70_1"></span></td>
+                <td><span id="70P_1"></span></td>
+            </tr>
+            <tr>
+                <td><span id="37B_2"></span></td>
+                <td><span id="70_2"></span></td>
+                <td><span id="70P_2"></span></td>
+            </tr>
+            <tr>
+                <td><span id="37B_3"></span></td>
+                <td><span id="70_3"></span></td>
+                <td><span id="70P_3"></span></td>
+            </tr>
+        </table>
+        <center><button class="ml-5 btn-secondary" onclick="getLatest()">Update</button></center>
+    </div>
+</body>
+
+</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script>
+    getLatest();
+    setInterval(getLatest, 1000 * 60);
+
+    async function getLatest() {
+        let url37B = "https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/001138/37B";
+        let url70 = "https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/001138/70";
+        let url70P = "https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/001138/70P";
+        let ls = [], ls1 = [], ls2 = [];
+
+        const response1 = await fetch(url37B).then(res => {
+            return res.json();
+        }).then(data => {
+            for (let i = 0; i < data.data.length; i++)
+                ls.push(new moment(data.data[i]?.eta));
+        })
+
+        const response2 = await fetch(url70).then(res => {
+            return res.json();
+        }).then(data => {
+            for (let i = 0; i < data.data.length; i++) 
+                ls1.push(new moment(data.data[i]?.eta));
+        })
+
+        const response3 = await fetch(url70P).then(res => {
+            return res.json();
+        }).then(data => {
+            for (let i = 0; i < data.data.length; i++)
+                ls2.push(new moment(data.data[i]?.eta));
+        })
+        ls = ls.sort((a, b) => a.valueOf() - b.valueOf());
+        ls1 = ls1.sort((a, b) => a.valueOf() - b.valueOf());
+        ls2 = ls2.sort((a, b) => a.valueOf() - b.valueOf());
+        for (let j = 0; j < ls.length; j++) 
+            document.getElementById("37B_" + (j + 1)).innerHTML = ls[j].calendar();
+        for (let j = 0; j < ls1.length; j++) 
+            document.getElementById("70_" + (j + 1)).innerHTML = ls1[j].calendar();
+        for (let j = 0; j < ls2.length; j++) 
+            document.getElementById("70P_" + (j + 1)).innerHTML = ls2[j].calendar();
+    }
+</script>
